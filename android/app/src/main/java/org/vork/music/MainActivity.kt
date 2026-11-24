@@ -1,4 +1,4 @@
-package org.retifs.music
+package org.vork.music
 
 import android.os.Build
 import android.os.Bundle
@@ -130,7 +130,7 @@ fun App(playing: Playing) {
 
     LaunchedEffect(reloads) { collection.load() }
     // Changes from elsewhere (a new album, a star on another device): read
-    // again the moment retifsd says a library changed, while on screen.
+    // again the moment vorkd says a library changed, while on screen.
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     LaunchedEffect(Unit) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -138,7 +138,7 @@ fun App(playing: Playing) {
             while (true) {
                 val answer = JSONObject(core { Core.waitChange(collection.watching(known), 60_000) })
                 known = answer.optJSONObject("known") ?: JSONObject()
-                if (answer.optBoolean("changed") && Retifs.problem == null) {
+                if (answer.optBoolean("changed") && Vork.problem == null) {
                     snapshotFlow { collection.reading }.first { it == null }
                     collection.load()
                 }
@@ -156,7 +156,7 @@ fun App(playing: Playing) {
     val star: (Track) -> Unit = { t ->
         val lib = collection.libraries.find { it.name == t.ns }
         if (lib?.writable != true) {
-            collection.error = "${t.ns} is read only here: retifs can let Music change it (Choose libraries…)"
+            collection.error = "${t.ns} is read only here: vØrk storage can let Music change it (Choose libraries…)"
         } else {
             val on = !t.favorite
             collection.starred(t, on)
@@ -190,7 +190,7 @@ fun App(playing: Playing) {
     }
 
     ModalNavigationDrawer(drawerState = drawer, drawerContent = {
-        ModalDrawerSheet { Drawer(collection, letIn = { letIn.launch(Retifs.letIn()) }) }
+        ModalDrawerSheet { Drawer(collection, letIn = { letIn.launch(Vork.letIn()) }) }
     }) {
         Scaffold(
             topBar = {
@@ -256,8 +256,8 @@ fun App(playing: Playing) {
                     LinearProgressIndicator(progress = { collection.progress }, modifier = Modifier.fillMaxWidth())
                     Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 16.dp, vertical = 2.dp))
                 }
-                if (Retifs.problem != null) {
-                    Problem(Retifs.problem!!, letIn = { letIn.launch(Retifs.letIn()) }, retry = { reloads++ })
+                if (Vork.problem != null) {
+                    Problem(Vork.problem!!, letIn = { letIn.launch(Vork.letIn()) }, retry = { reloads++ })
                     return@Column
                 }
                 (playing.error ?: collection.error.ifEmpty { null })?.let {
@@ -289,26 +289,26 @@ private fun emptyText(c: Collection): String = when {
     else -> "No music in the libraries shown. Put songs into one (from a computer: copy them into its folder), and they show here."
 }
 
-/** retifs can't be used yet: why, and what to do. */
+/** vØrk storage can't be used yet: why, and what to do. */
 @Composable
-fun Problem(p: Retifs.Problem, letIn: () -> Unit, retry: () -> Unit) {
+fun Problem(p: Vork.Problem, letIn: () -> Unit, retry: () -> Unit) {
     val context = LocalContext.current
     Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         when (p) {
-            Retifs.Problem.NOT_INSTALLED -> {
-                Text("retifs isn't installed", style = MaterialTheme.typography.titleMedium)
-                Text("Music plays the songs in your retifs libraries. Install the retifs app (from the retifs-installers library) first.")
+            Vork.Problem.NOT_INSTALLED -> {
+                Text("vØrk storage isn't installed", style = MaterialTheme.typography.titleMedium)
+                Text("Music plays the songs in your vØrk storage libraries. Install the vØrk app and the vØrk storage app first.")
             }
-            Retifs.Problem.NOT_LET_IN -> {
-                Text("Let Music use retifs", style = MaterialTheme.typography.titleMedium)
-                Text("retifs asks which of your libraries Music may play, and whether it may star songs in them.")
+            Vork.Problem.NOT_LET_IN -> {
+                Text("Let Music use vØrk storage", style = MaterialTheme.typography.titleMedium)
+                Text("vØrk storage asks which of your libraries Music may play, and whether it may star songs in them.")
                 Button(onClick = letIn) { Text("Choose libraries…") }
             }
-            Retifs.Problem.NOT_RUNNING -> {
-                Text("retifs isn't running", style = MaterialTheme.typography.titleMedium)
-                Text("Open retifs: it starts once Reticulum is up.")
+            Vork.Problem.NOT_RUNNING -> {
+                Text("vØrk storage isn't running", style = MaterialTheme.typography.titleMedium)
+                Text("Open vØrk storage: it starts once the vØrk app's node is up.")
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Retifs.open(context)?.let { i -> OutlinedButton(onClick = { context.startActivity(i) }) { Text("Open retifs") } }
+                    Vork.open(context)?.let { i -> OutlinedButton(onClick = { context.startActivity(i) }) { Text("Open vØrk storage") } }
                     Button(onClick = retry) { Text("Try again") }
                 }
             }
@@ -316,13 +316,13 @@ fun Problem(p: Retifs.Problem, letIn: () -> Unit, retry: () -> Unit) {
     }
 }
 
-/** The libraries: Announces above (in the retifs app), each library with music a toggle. */
+/** The libraries: Announces above (in the vØrk storage app), each library with music a toggle. */
 @Composable
 fun Drawer(collection: Collection, letIn: () -> Unit) {
     val context = LocalContext.current
     LazyColumn(Modifier.padding(vertical = 8.dp)) {
         item {
-            OutlinedButton(onClick = { Retifs.open(context)?.let { context.startActivity(it) } }, modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) { Text("Announces") }
+            OutlinedButton(onClick = { Vork.open(context)?.let { context.startActivity(it) } }, modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) { Text("Announces") }
             Text("Libraries", style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp))
         }
         // Libraries without music aren't listed (unless hidden, or not read yet).
@@ -340,7 +340,7 @@ fun Drawer(collection: Collection, letIn: () -> Unit) {
         }
         item {
             HorizontalDivider(Modifier.padding(vertical = 8.dp))
-            Text("Music sees only the libraries retifs let it in to.", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 16.dp))
+            Text("Music sees only the libraries vØrk storage let it in to.", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 16.dp))
             Box(Modifier.padding(16.dp)) { OutlinedButton(onClick = letIn) { Text("Choose libraries…") } }
         }
     }

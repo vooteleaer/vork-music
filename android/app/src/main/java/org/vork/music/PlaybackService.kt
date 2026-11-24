@@ -1,4 +1,4 @@
-package org.retifs.music
+package org.vork.music
 
 import android.app.PendingIntent
 import android.content.Intent
@@ -31,7 +31,7 @@ import java.util.concurrent.Executors
 /**
  * The player, as a media session: it plays on with the screen off, and the
  * notification, lock screen, headset and car talk to it. Songs play straight
- * from retifs in pieces ([RetifsDataSource]): retifsd fetches the pieces that
+ * from vØrk storage in pieces ([VorkDataSource]): vorkd fetches the pieces that
  * aren't on this phone from the library's other nodes as they're needed.
  */
 @OptIn(UnstableApi::class)
@@ -42,7 +42,7 @@ class PlaybackService : MediaSessionService() {
         super.onCreate()
         val extractors = DefaultExtractorsFactory().setConstantBitrateSeekingEnabled(true)
         val player = ExoPlayer.Builder(this)
-            .setMediaSourceFactory(DefaultMediaSourceFactory(RetifsDataSource.Factory(), extractors))
+            .setMediaSourceFactory(DefaultMediaSourceFactory(VorkDataSource.Factory(), extractors))
             .setAudioAttributes(AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).setContentType(C.AUDIO_CONTENT_TYPE_MUSIC).build(), true)
             .setHandleAudioBecomingNoisy(true)
             .setWakeMode(C.WAKE_MODE_NETWORK)
@@ -80,11 +80,11 @@ class PlaybackService : MediaSessionService() {
 }
 
 /**
- * A song's bytes from retifs (`retifs://track?ns=…&cap=…`), read in pieces
+ * A song's bytes from vØrk storage (`vork://track?ns=…&cap=…`), read in pieces
  * as the player asks for them; seeking reads from there.
  */
 @OptIn(UnstableApi::class)
-class RetifsDataSource : BaseDataSource(true) {
+class VorkDataSource : BaseDataSource(true) {
     private var uri: Uri? = null
     private var ns = ""
     private var cap = ""
@@ -98,8 +98,8 @@ class RetifsDataSource : BaseDataSource(true) {
     override fun open(dataSpec: DataSpec): Long {
         transferInitializing(dataSpec)
         val u = dataSpec.uri
-        ns = u.getQueryParameter("ns") ?: throw IOException("not a retifs song: $u")
-        cap = u.getQueryParameter("cap") ?: throw IOException("not a retifs song: $u")
+        ns = u.getQueryParameter("ns") ?: throw IOException("not a vØrk storage song: $u")
+        cap = u.getQueryParameter("cap") ?: throw IOException("not a vØrk storage song: $u")
         size = cap.substringAfterLast(':').toLongOrNull() ?: throw IOException("no size in $cap")
         if (dataSpec.position > size) throw DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE)
         uri = u
@@ -116,7 +116,7 @@ class RetifsDataSource : BaseDataSource(true) {
         var p = piece
         if (p == null || position < pieceAt || position >= pieceAt + p.size) {
             p = Core.readRange(ns, cap, position, minOf(PIECE, size - position), WAIT_MS)
-                ?: throw IOException(if (Retifs.problem != null) "retifs isn't reachable" else "this song isn't reachable now (no node that has it answered)")
+                ?: throw IOException(if (Vork.problem != null) "vØrk storage isn't reachable" else "this song isn't reachable now (no node that has it answered)")
             if (p.isEmpty()) return C.RESULT_END_OF_INPUT
             piece = p
             pieceAt = position
@@ -142,18 +142,18 @@ class RetifsDataSource : BaseDataSource(true) {
     }
 
     class Factory : DataSource.Factory {
-        override fun createDataSource(): DataSource = RetifsDataSource()
+        override fun createDataSource(): DataSource = VorkDataSource()
     }
 
     companion object {
-        /** What one read asks retifsd for. */
+        /** What one read asks vorkd for. */
         const val PIECE = 256L shl 10
         /** How long a piece may take to come from another node. */
         const val WAIT_MS = 60_000L
     }
 }
 
-/** Album covers for the notification and lock screen (`retifs://cover?…`). */
+/** Album covers for the notification and lock screen (`vork://cover?…`). */
 @OptIn(UnstableApi::class)
 class CoverLoader : BitmapLoader {
     private val pool = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(2))

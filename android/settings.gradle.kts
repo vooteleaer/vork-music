@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "retifs-music"
+rootProject.name = "vork-music"
 include(":app")

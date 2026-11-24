@@ -1,16 +1,16 @@
 [package]
-name = "retifs-music-jni"
-description = "retifs Music for Android: the music core to Kotlin, through JNI, as JSON"
+name = "vork-music-jni"
+description = "vØrk Music for Android: the music core to Kotlin, through JNI, as JSON"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 publish.workspace = true
 
 [lib]
-name = "retifs_music"
+name = "vork_music"
 crate-type = ["cdylib"]
 
 [dependencies]
-retifs-music-core = { path = "../../core" }
+vork-music-core = { path = "../../core" }
 jni = { version = "0.21", default-features = false }
 serde_json = "1"

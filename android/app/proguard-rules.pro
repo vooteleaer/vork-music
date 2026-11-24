@@ -1,2 +1,2 @@
-# The JNI library calls Retifs.connect() by name.
--keep class org.retifs.music.Retifs { public static int connect(); }
+# The JNI library calls Vork.connect() by name.
+-keep class org.vork.music.Vork { public static int connect(); }

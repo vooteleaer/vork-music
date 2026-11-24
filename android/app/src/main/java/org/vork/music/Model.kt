@@ -1,4 +1,4 @@
-package org.retifs.music
+package org.vork.music
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -70,7 +70,7 @@ data class Track(
     }
 
     companion object {
-        const val SCHEME = "retifs"
+        const val SCHEME = "vork"
 
         fun of(j: JSONObject) = Track(
             ns = j.getString("ns"),

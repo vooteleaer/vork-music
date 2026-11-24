@@ -1,4 +1,4 @@
-package org.retifs.music
+package org.vork.music
 
 import android.content.ComponentName
 import android.content.Context
@@ -44,7 +44,7 @@ class Playing {
         override fun onEvents(player: Player, events: Player.Events) = refresh()
 
         override fun onPlayerError(e: PlaybackException) {
-            // The deepest reason with words (ours, from RetifsDataSource).
+            // The deepest reason with words (ours, from VorkDataSource).
             error = generateSequence(e as Throwable) { it.cause }.lastOrNull { !it.message.isNullOrEmpty() }?.message ?: e.errorCodeName
         }
     }

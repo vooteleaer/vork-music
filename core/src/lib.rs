@@ -1,4 +1,4 @@
-//! Music on retifs: the tracks in the user's libraries, their albums and the
+//! Music on vØrk storage: the tracks in the user's libraries, their albums and the
 //! albums' covers, read the way the Music Assistant provider reads them, so
 //! every player shows one collection:
 //!
@@ -11,12 +11,12 @@
 //! - An album's cover is an image record in its folder (`cover.*`,
 //!   `folder.*`, `front.*`, …), or one that says `cover.album=<album key>`
 //!   (the covers Music Assistant finds and saves).
-//! - A favourite says `favorite = true` (a star in every retifs app).
+//! - A favourite says `favorite = true` (a star in every vØrk storage app).
 
 use std::collections::{BTreeMap, HashMap};
 use std::path::PathBuf;
 
-use libretifs::{AttrValue, Client, RecordView, Request, Response};
+use libvork::{AttrValue, Client, RecordView, Request, Response};
 use sha2::{Digest, Sha256};
 
 pub const ME: &str = "me";
@@ -86,7 +86,7 @@ impl Rec {
         !self.blocks.is_empty() && (mime.starts_with("image/") || (mime.is_empty() && IMAGE_EXT.contains(&self.ext().as_str())))
     }
 
-    /// The block for `role` (`thumb`, `preview`; retifs ADR-0026), else the content.
+    /// The block for `role` (`thumb`, `preview`; storage ADR-0026), else the content.
     pub fn block(&self, role: &str) -> Option<&String> {
         let i = match self.attrs.get(&format!("block:{role}")) {
             Some(AttrValue::Int(i)) if *i > 0 => *i as usize,
@@ -345,12 +345,12 @@ fn sort_name(s: &str) -> String {
     l.strip_prefix("the ").map(String::from).unwrap_or(l)
 }
 
-/// Opens a connection to `retifsd` some other way than its socket (on
-/// Android: from the retifs app's access service).
+/// Opens a connection to `vorkd` some other way than its socket (on
+/// Android: from the vØrk storage app's access service).
 #[cfg(unix)]
 pub type Connector = Box<dyn Fn() -> Result<std::os::unix::net::UnixStream, String> + Send + Sync>;
 
-/// The connection to `retifsd`.
+/// The connection to `vorkd`.
 pub struct Library {
     rt: tokio::runtime::Runtime,
     store: PathBuf,
@@ -371,7 +371,7 @@ impl Library {
         let rt = tokio::runtime::Builder::new_current_thread().enable_all().build().expect("a tokio runtime");
         Library {
             rt,
-            store: libretifs::default_store_dir(),
+            store: libvork::default_store_dir(),
             kept: std::cell::RefCell::new(None),
             #[cfg(unix)]
             connector: None,
@@ -394,7 +394,7 @@ impl Library {
     }
 
     /// `req` on the kept connection; once more on a new one if that one broke
-    /// (retifsd restarted, the access service handed over a new one).
+    /// (vorkd restarted, the access service handed over a new one).
     fn request(&self, req: Request) -> Result<Response, String> {
         for attempt in 0..2 {
             let kept = self.kept.borrow_mut().take();
@@ -463,7 +463,7 @@ impl Library {
         self.read_range(ns, cap, 0, size, 30_000).ok()
     }
 
-    /// A crash or trouble report to retifs (ADR-0036), which keeps it for the
+    /// A crash or trouble report to vØrk storage (storage ADR-0036), which keeps it for the
     /// user's crash library.
     pub fn crash_report(&self, kind: &str, source: &str, text: &str) -> Result<(), String> {
         self.request(Request::CrashReport { kind: kind.into(), source: source.into(), text: text.into() }).map(|_| ())
@@ -495,7 +495,7 @@ impl Library {
             std::thread::sleep(timeout.min(std::time::Duration::from_secs(5)));
             return false;
         }
-        match self.rt.block_on(libretifs::watch_any(watches, timeout)) {
+        match self.rt.block_on(libvork::watch_any(watches, timeout)) {
             Ok(Some((ns, count))) => {
                 known.insert(ns, count);
                 // Changes come in bursts (a sync merging many): one read for them all.

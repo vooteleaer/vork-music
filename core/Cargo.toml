@@ -1,13 +1,13 @@
 [package]
-name = "retifs-music-core"
-description = "Music on retifs: tracks, albums and their covers in the user's libraries, through libretifs"
+name = "vork-music-core"
+description = "Music on vØrk storage: tracks, albums and their covers in the user's libraries, through libvork"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 publish.workspace = true
 
 [dependencies]
-libretifs = { path = "../../retifs/crates/libretifs" }
+libvork = { path = "../../vork/crates/libvork" }
 tokio = { version = "1", features = ["rt"] }
 # Album keys as the Music Assistant provider makes them (its saved covers say `cover.album=<key>`).
 sha2 = "0.10"

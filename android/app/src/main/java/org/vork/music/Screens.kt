@@ -1,4 +1,4 @@
-package org.retifs.music
+package org.vork.music
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

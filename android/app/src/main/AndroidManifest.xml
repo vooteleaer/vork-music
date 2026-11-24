@@ -6,9 +6,9 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
-    <!-- retifs itself: this app's connections come from its access service. -->
+    <!-- vØrk storage (org.vork.storage): this app's connections come from its access service. -->
     <queries>
-        <package android:name="org.retifs.desktop" />
+        <package android:name="org.vork.storage" />
     </queries>
 
     <application
