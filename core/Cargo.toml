@@ -7,7 +7,7 @@ license.workspace = true
 publish.workspace = true
 
 [dependencies]
-libvork = { path = "../../vork/crates/libvork" }
+libvork = { path = "../../vork-storage/crates/libvork" }
 tokio = { version = "1", features = ["rt"] }
 # Album keys as the Music Assistant provider makes them (its saved covers say `cover.album=<key>`).
 sha2 = "0.10"

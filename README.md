@@ -1,8 +1,8 @@
 # vØrk Music
 
-A music player for [vØrk storage](https://github.com/vooteleaer/vork/blob/main/docs/storage/README.md): the songs in your libraries, wherever they came from (a computer's folder, Explorer, a mount), encrypted and synced like everything else, played straight from the network.
+A music player for [vØrk storage](https://github.com/vooteleaer/vork-storage): the songs in your libraries, wherever they came from (a computer's folder, Explorer, a mount), encrypted and synced like everything else, played straight from the network.
 
-> A demo app of vØrk storage, the encrypted storage application of [vØrk](https://github.com/vooteleaer/vork). To try it, start with [getting started](https://github.com/vooteleaer/vork/blob/main/docs/storage/getting-started.md). It began as retifs Music, the same app for retifs, vØrk storage's predecessor; its history is kept here.
+> A demo app of vØrk storage, the encrypted storage application of [vØrk](https://github.com/vooteleaer/vork). To try it, start with [getting started](https://github.com/vooteleaer/vork-storage/blob/main/docs/getting-started.md). It began as retifs Music, the same app for retifs, vØrk storage's predecessor; its history is kept here.
 
 It reads a library the way the [Music Assistant provider](https://github.com/vooteleaer/vork/tree/main/clients/music-assistant) does, so both show one collection:
 
@@ -25,7 +25,7 @@ It reads a library the way the [Music Assistant provider](https://github.com/voo
 
 On Android vorkd runs in the vØrk storage app (`org.vork.storage`), on the node of the vØrk app (`org.vork.net`); its sockets are out of this app's reach, so the app asks the storage app's access service (action `org.vork.storage.action.ACCESS`) for each connection: the user lets Music in once there (`org.vork.storage.action.LET_IN`), to the libraries chosen, and the storage app hands over connections made with its own app token for it (storage ADR-0004). Music asks to change them only to star songs.
 
-Build: `powershell -ExecutionPolicy Bypass -File android\build-apk.ps1 [-Abis arm64-v8a] [-Release]` (NDK 27, JDK 17, [vork](https://github.com/vooteleaer/vork) next to this repository: the core builds against its `crates/libvork`).
+Build: `powershell -ExecutionPolicy Bypass -File android\build-apk.ps1 [-Abis arm64-v8a] [-Release]` (NDK 27, JDK 17, [vork-storage](https://github.com/vooteleaer/vork-storage) next to this repository: the core builds against its `crates/libvork`).
 
 ## License
 
